@@ -1,4 +1,4 @@
-import { GetServerSideProps } from "next";
+import { GetStaticProps } from "next";
 
 import Head from "next/head";
 import { SubscribeButton } from "../Components/SubscribeButton";
@@ -28,7 +28,7 @@ export default function Home({ product }: IHomeProps) {
             Get Access to all publications <br />
             <span>for {product.amount} month</span>
           </p>
-          <SubscribeButton priceId={product.priceId}/>
+          <SubscribeButton priceId={product.priceId} />
         </section>
         <img src="/images/avatar.svg" alt="Girl coding" width="250px" />
       </main>
@@ -36,7 +36,7 @@ export default function Home({ product }: IHomeProps) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getStaticProps: GetStaticProps = async () => {
   const price = await stripe.prices.retrieve("price_1Iv58oHfKO4mmIyhGylt2Beq", {
     expand: ["product"],
   });
@@ -48,9 +48,12 @@ export const getServerSideProps: GetServerSideProps = async () => {
       currency: "USD",
     }).format(price.unit_amount / 100),
   };
+
+  //gerando html statico e revalidando a cada 24 horas GetStaticProps caso contrario deveria utilizar GetServerSideProps
   return {
     props: {
       product,
     },
+    revalidate: 60 * 60 * 24, //24 hours
   };
 };
